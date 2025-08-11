@@ -4,8 +4,11 @@ plugins {
 
 dependencies {
     implementation(project(":core"))
-    runtimeOnly("ch.qos.logback:logback-classic")
+    implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut:micronaut-jackson-databind")
+    implementation("io.micronaut.validation:micronaut-validation")
+    implementation("io.projectreactor:reactor-core")
+    runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.yaml:snakeyaml")
     testImplementation("io.micronaut.test:micronaut-test-junit5")
     testImplementation("io.micronaut:micronaut-http-client")
