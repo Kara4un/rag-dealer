@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/rag-dealer.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/rag-dealer.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/rag-dealer.app.test.iml" filepath="$PROJECT_DIR$/.idea/modules/app/rag-dealer.app.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/rag-dealer.core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/rag-dealer.core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/rag-dealer.core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/rag-dealer.core.test.iml" />
+    </modules>
+  </component>
+</project>

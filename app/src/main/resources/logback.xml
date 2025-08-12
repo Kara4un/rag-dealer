@@ -4,6 +4,15 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    <!-- HTTP client wiretap and Micronaut client logs -->
+    <logger name="http-client-logger" level="TRACE"/>
+    <logger name="reactor.netty.http.client" level="DEBUG"/>
+    <logger name="io.micronaut.http.client" level="TRACE"/>
+
+    <!-- HTTP server access and Netty server logs -->
+    <logger name="http-access-logger" level="INFO"/>
+    <logger name="reactor.netty.http.server" level="DEBUG"/>
+    <logger name="io.micronaut.http.server" level="DEBUG"/>
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>

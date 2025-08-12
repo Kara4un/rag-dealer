@@ -10,6 +10,8 @@ import io.micronaut.test.annotation.MockBean;
 import jakarta.inject.Inject;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
+import static org.mockito.Mockito.*;
 
 @MicronautTest
 class ChatControllerTest {
@@ -18,11 +20,14 @@ class ChatControllerTest {
     @Client("/")
     HttpClient client;
 
-    @MockBean(GigaChatClient.class)
-    GigaChatClient gigaChatClient() {
-        return request -> new GigaChatClient.GigaChatResponse(
-                List.of(new GigaChatClient.GigaChatResponse.Choice(
-                        new GigaChatClient.Message("assistant", "hi"))));
+    @Inject
+    GigaChatService chatService;
+
+    @MockBean(GigaChatService.class)
+    GigaChatService mockService() {
+        GigaChatService mock = mock(GigaChatService.class);
+        when(mock.generateReply(anyList(), anyString())).thenReturn(Mono.just("hi"));
+        return mock;
     }
 
     @Test

@@ -13,6 +13,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
 import ru.kara4un.ragdealer.core.chat.ChatMessage;
 import ru.kara4un.ragdealer.core.chat.InMemoryChatStore;
 
@@ -28,20 +30,22 @@ public class ChatController {
     }
 
     @Post(value = "/chat", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
-    public HttpResponse<ChatResponse> chat(@Body ChatRequest request, HttpRequest<?> httpRequest) {
+    public Publisher<HttpResponse<ChatResponse>> chat(@Body ChatRequest request, HttpRequest<?> httpRequest) {
         Optional<Cookie> cookieOpt = httpRequest.getCookies().findCookie("SESSION_ID");
         boolean newSession = cookieOpt.isEmpty();
         String sessionId = cookieOpt.map(Cookie::getValue).orElse(UUID.randomUUID().toString());
         List<ChatMessage> history = chatStore.lastN(sessionId, 5);
-        String reply = chatService.generateReply(history, request.text());
-        chatStore.append(sessionId, new ChatMessage("user", request.text(), Instant.now()));
-        chatStore.append(sessionId, new ChatMessage("assistant", reply, Instant.now()));
-        ChatResponse body = new ChatResponse(reply, chatStore.lastN(sessionId, 5));
-        MutableHttpResponse<ChatResponse> response = HttpResponse.ok(body);
-        if (newSession) {
-            response.cookie(Cookie.of("SESSION_ID", sessionId));
-        }
-        return response;
+        return Mono.from(chatService.generateReply(history, request.text()))
+                .map(reply -> {
+                    chatStore.append(sessionId, new ChatMessage("user", request.text(), Instant.now()));
+                    chatStore.append(sessionId, new ChatMessage("assistant", reply, Instant.now()));
+                    ChatResponse body = new ChatResponse(reply, chatStore.lastN(sessionId, 5));
+                    MutableHttpResponse<ChatResponse> response = HttpResponse.ok(body);
+                    if (newSession) {
+                        response.cookie(Cookie.of("SESSION_ID", sessionId));
+                    }
+                    return response;
+                });
     }
 
     @Get("/history")

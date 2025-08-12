@@ -1,16 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>GigaChat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rag Dealer • GigaChat</title>
+    <!-- Optional: Markdown renderer (fallback present in JS if unavailable) -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div id="chat">
-    <div id="messages"></div>
-    <input id="input" type="text" placeholder="Message"/>
-    <button id="send">Send</button>
+<div class="app-root">
+    <header class="app-bar elevation-2">
+        <div class="app-title">Rag Dealer</div>
+        <div class="app-subtitle">GigaChat</div>
+    </header>
+
+    <main class="app-main">
+        <section id="chat-card" class="card elevation-1">
+            <div id="messages" class="messages" aria-live="polite"></div>
+            <div id="typing" class="typing" hidden>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>
+            <form id="composer" class="composer" autocomplete="off">
+                <input id="input" class="input" type="text" placeholder="Напишите сообщение..." aria-label="Сообщение" />
+                <button id="send" class="btn btn-primary" type="submit" aria-label="Отправить">
+                    <span class="btn-label">Отправить</span>
+                </button>
+            </form>
+        </section>
+    </main>
 </div>
+
+<div id="snackbar" class="snackbar" role="status" aria-live="polite"></div>
+
 <script src="index.js"></script>
 </body>
 </html>
