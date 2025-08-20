@@ -1,16 +1,17 @@
-import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
-
 plugins {
-    id("io.micronaut.application")
+    id("org.springframework.boot")
+    id("io.spring.dependency-management")
+    java
     id("org.openapi.generator") version "7.5.0"
 }
 
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
 dependencies {
     implementation(project(":core"))
-    implementation("io.micronaut:micronaut-http-client")
-    implementation("io.micronaut:micronaut-jackson-databind")
-    implementation("io.micronaut.validation:micronaut-validation")
-    implementation("io.projectreactor:reactor-core")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     // OpenAPI 'java' client (okhttp-gson library)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
@@ -18,26 +19,12 @@ dependencies {
     implementation("io.gsonfire:gson-fire:1.8.5")
     implementation("org.openapitools:jackson-databind-nullable:0.2.6")
     runtimeOnly("ch.qos.logback:logback-classic")
-    runtimeOnly("org.yaml:snakeyaml")
-    testImplementation("io.micronaut.test:micronaut-test-junit5")
-    testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.mockito:mockito-core:5.11.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
 }
 
-application {
-    mainClass.set("ru.kara4un.ragdealer.RagdealerApplication")
-}
-
-micronaut {
-    runtime("netty")
-    testRuntime("junit5")
-    processing {
-        incremental(true)
-        annotations("ru.kara4un.ragdealer.*")
-    }
-}
 
 // OpenAPI client generation (place spec at: rootDir/openapi/gigachat.yaml)
 val openApiOutputDir = layout.buildDirectory.dir("generated/openapi")
@@ -80,7 +67,3 @@ tasks.named("processResources").configure {
     dependsOn(generateGigachatClient)
 }
 
-// Micronaut plugin task inspects runtime classpath and touches generated resources
-tasks.named("inspectRuntimeClasspath").configure {
-    dependsOn(generateGigachatClient)
-}

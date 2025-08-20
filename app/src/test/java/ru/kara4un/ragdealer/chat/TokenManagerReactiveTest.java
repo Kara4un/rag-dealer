@@ -2,11 +2,9 @@ package ru.kara4un.ragdealer.chat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.micronaut.http.HttpHeaders;
-import io.micronaut.http.annotation.Header;
-import java.util.concurrent.atomic.AtomicInteger;
-import io.micronaut.http.HttpResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -26,15 +24,14 @@ class TokenManagerReactiveTest {
         }
 
         @Override
-        public org.reactivestreams.Publisher<HttpResponse<String>> token(
-                @Header(HttpHeaders.AUTHORIZATION) String authorization,
-                @Header(HttpHeaders.CONTENT_TYPE) String contentType,
-                @Header(HttpHeaders.ACCEPT) String accept,
-                @Header("RqUID") String rqUid,
-                java.util.Map<String, String> form) {
+        public Mono<OAuthClientResponse> token(String authorization,
+                                               String contentType,
+                                               String accept,
+                                               String rqUid,
+                                               Map<String, String> form) {
             calls.incrementAndGet();
             String json = "{\"access_token\":\"" + token + "\",\"expires_in\":3600}";
-            return Mono.just(HttpResponse.ok(json));
+            return Mono.just(new OAuthClientResponse(200, json));
         }
     }
 
@@ -47,14 +44,12 @@ class TokenManagerReactiveTest {
                 .expectNext("T1")
                 .verifyComplete();
 
-        // Second call should return cached token without invoking OAuth again
         StepVerifier.create(manager.getValidTokenReactive())
                 .expectNext("T1")
                 .verifyComplete();
 
         assertEquals(1, oauth.getCalls(), "OAuth should be called once for valid cached token");
 
-        // New manager (no cached token) should fetch again and see updated token
         oauth.setToken("T2");
         TokenManager manager2 = new TokenManager(oauth, "scope", 60, "AUTHKEY", new ObjectMapper());
         StepVerifier.create(manager2.getValidTokenReactive())

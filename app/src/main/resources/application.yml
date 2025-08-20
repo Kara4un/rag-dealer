@@ -1,32 +1,10 @@
-micronaut:
-  http:
-    client:
-      ssl:
-        enabled: true
-        insecure-trust-all-certificates: true
-      # Use Micronaut client logger instead of Reactor Netty wiretap
-      logger:
-        enabled: true
-        level: TRACE
-        # Unmask headers in client logs (show real Authorization)
-        sensitive-headers: []
-    services:
-      ngw:
-        # Full base URL including path to avoid path mismatches
-        url: ${gigachat.oauth.base-url}
-        # Allow receiving HttpResponse with body on 4xx instead of throwing
-        exception-on-error-status: false
-        logger:
-          # Also unmask for this named service explicitly
-          sensitive-headers: []
-  application:
-    name: rag-dealer
-  router:
-    static-resources:
-      default:
-        enabled: true
-        mapping: /**
-        paths: classpath:public
+server:
+  port: 8080
+
+http:
+  client:
+    ssl:
+      insecure-trust-all-certificates: true
 
 gigachat:
   api:
@@ -35,11 +13,8 @@ gigachat:
   oauth:
     base-url: https://ngw.devices.sberbank.ru:9443/api/v2
     scope: ${GIGACHAT_SCOPE:GIGACHAT_API_PERS}
-    # Use env var; no placeholder fallback to avoid accidental misuse
     authorization-key: ${GIGACHAT_AUTHORIZATION_KEY:}
-    # По умолчанию используем Bearer; Basic не используется
     authorization-scheme: ${GIGACHAT_OAUTH_AUTH_SCHEME:Bearer}
-    # WARNING: Logs the full Authorization header; disable in production
     log-authorization: ${GIGACHAT_OAUTH_LOG_AUTHORIZATION:true}
   token:
     proactive-refresh-seconds: 60
