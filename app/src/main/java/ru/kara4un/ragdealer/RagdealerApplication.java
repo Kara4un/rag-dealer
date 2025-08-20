@@ -1,9 +1,11 @@
 package ru.kara4un.ragdealer;
 
-import io.micronaut.runtime.Micronaut;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@SpringBootApplication
 public class RagdealerApplication {
     public static void main(String[] args) {
-        Micronaut.run(RagdealerApplication.class, args);
+        SpringApplication.run(RagdealerApplication.class, args);
     }
 }

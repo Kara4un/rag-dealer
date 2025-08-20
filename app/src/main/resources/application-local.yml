@@ -1,15 +1,7 @@
-micronaut:
-  http:
-    client:
-      ssl:
-        enabled: true
-        insecure-trust-all-certificates: true
-      logger:
-        enabled: true
-        level: TRACE
-        sensitive-headers: []
-  server:
-    netty:
-      access-logger:
-        enabled: true
-        logger-name: http-access-logger
+http:
+  client:
+    ssl:
+      insecure-trust-all-certificates: true
+logging:
+  level:
+    org.springframework.web: TRACE

@@ -1,11 +1,11 @@
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.api.tasks.testing.Test
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 plugins {
-    id("io.micronaut.application") version "4.5.4" apply false
-    id("io.micronaut.library") version "4.5.4" apply false
+    id("org.springframework.boot") version "3.2.5" apply false
+    id("io.spring.dependency-management") version "1.1.4" apply false
 }
 
 group = "ru.kara4un"

@@ -1,21 +1,19 @@
 package ru.kara4un.ragdealer.chat;
 
-import io.micronaut.context.annotation.Value;
-import io.micronaut.http.HttpStatus;
-import io.micronaut.http.client.exceptions.HttpClientResponseException;
-import io.micronaut.http.MediaType;
-import jakarta.inject.Singleton;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import org.reactivestreams.Publisher;
-import reactor.core.publisher.Mono;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-@Singleton
+@Service
 public class TokenManager {
     private static final Logger LOG = LoggerFactory.getLogger(TokenManager.class);
 
@@ -31,6 +29,7 @@ public class TokenManager {
     private volatile Instant expiresAt;
     private final AtomicReference<Mono<String>> inFlightRefresh = new AtomicReference<>();
 
+    @org.springframework.beans.factory.annotation.Autowired
     public TokenManager(
             OAuthClient oauthClient,
             @Value("${gigachat.oauth.scope}") String scope,
@@ -94,41 +93,40 @@ public class TokenManager {
         if (logAuthorization) {
             LOG.info("OAuth Authorization header: {}", authHeader);
         }
-        Publisher<io.micronaut.http.HttpResponse<String>> call = oauthClient.token(
-                authHeader,
-                MediaType.APPLICATION_FORM_URLENCODED,
-                MediaType.ALL,
-                rqUid,
-                (scope == null || scope.isBlank()) ? java.util.Collections.emptyMap() : java.util.Collections.singletonMap("scope", scope));
-        return Mono.from(call)
+        return oauthClient.token(
+                        authHeader,
+                        MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+                        MediaType.ALL_VALUE,
+                        rqUid,
+                        (scope == null || scope.isBlank()) ? java.util.Collections.emptyMap() : java.util.Collections.singletonMap("scope", scope))
                 .flatMap(resp -> {
-                    if (resp.getStatus() == HttpStatus.OK) {
-                        return Mono.just(resp.getBody(String.class).orElse(""));
+                    if (resp.status() == HttpStatus.OK.value()) {
+                        return Mono.just(resp.body());
                     }
-                    String errBody = resp.getBody(String.class).orElse("");
-                    if (resp.getStatus() == HttpStatus.UNAUTHORIZED) {
-                        LOG.warn("OAuth unauthorized: status={} body={}", resp.getStatus(), errBody);
+                    String errBody = resp.body();
+                    if (resp.status() == HttpStatus.UNAUTHORIZED.value()) {
+                        LOG.warn("OAuth unauthorized: status={} body={}", resp.status(), errBody);
                         String retryAuth = authHeader;
                         if (logAuthorization) {
                             LOG.info("OAuth Authorization header (retry): {}", retryAuth);
                         }
-                        return Mono.from(oauthClient.token(
-                                retryAuth,
-                                MediaType.APPLICATION_FORM_URLENCODED,
-                                MediaType.ALL,
-                                UUID.randomUUID().toString(),
-                                (scope == null || scope.isBlank()) ? java.util.Collections.emptyMap() : java.util.Collections.singletonMap("scope", scope)))
+                        return oauthClient.token(
+                                        retryAuth,
+                                        MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+                                        MediaType.ALL_VALUE,
+                                        UUID.randomUUID().toString(),
+                                        (scope == null || scope.isBlank()) ? java.util.Collections.emptyMap() : java.util.Collections.singletonMap("scope", scope))
                                 .flatMap(resp2 -> {
-                                    if (resp2.getStatus() == HttpStatus.OK) {
-                                        return Mono.just(resp2.getBody(String.class).orElse(""));
+                                    if (resp2.status() == HttpStatus.OK.value()) {
+                                        return Mono.just(resp2.body());
                                     }
-                                    String errBody2 = resp2.getBody(String.class).orElse("");
-                                    LOG.error("OAuth retry failed: status={} body={}", resp2.getStatus(), errBody2);
-                                    return Mono.error(new IllegalStateException("OAuth error after retry: " + resp2.getStatus()));
+                                    String errBody2 = resp2.body();
+                                    LOG.error("OAuth retry failed: status={} body={}", resp2.status(), errBody2);
+                                    return Mono.error(new IllegalStateException("OAuth error after retry: " + resp2.status()));
                                 });
                     }
-                    LOG.error("OAuth request failed: status={} body={}", resp.getStatus(), errBody);
-                    return Mono.error(new IllegalStateException("OAuth error: " + resp.getStatus()));
+                    LOG.error("OAuth request failed: status={} body={}", resp.status(), errBody);
+                    return Mono.error(new IllegalStateException("OAuth error: " + resp.status()));
                 })
                 .map(body -> {
                     try {
