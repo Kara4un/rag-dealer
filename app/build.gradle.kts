@@ -12,6 +12,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.ai:spring-ai-core:1.0.0-M6")
+    implementation("org.opensearch.client:opensearch-java:3.1.0")
     // OpenAPI 'java' client (okhttp-gson library)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
@@ -23,6 +25,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.mockito:mockito-core:5.11.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
 
