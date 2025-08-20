@@ -19,6 +19,13 @@ gradle :app:build
 gradle :app:bootRun
 ```
 
+## Agentic flow
+
+The chat controller delegates each user message to a simple agent composed of
+actions such as validation, token management and LLM invocation. The agent uses
+a custom Spring AI `ChatModel` for GigaChat. Model parameters can be configured
+under `spring.ai.gigachat.*` in `app/src/main/resources/application.yml`.
+
 Then verify:
 
 ```bash

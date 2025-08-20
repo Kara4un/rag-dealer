@@ -1,6 +1,5 @@
 package ru.kara4un.ragdealer.chat;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpHeaders;
@@ -20,11 +19,12 @@ import ru.kara4un.ragdealer.core.chat.InMemoryChatStore;
 public class ChatController {
 
     private final InMemoryChatStore chatStore;
-    private final GigaChatService chatService;
+    private final ru.kara4un.ragdealer.agent.goals.HandleChatTurn handleChatTurn;
 
-    public ChatController(InMemoryChatStore chatStore, GigaChatService chatService) {
+    public ChatController(InMemoryChatStore chatStore,
+                          ru.kara4un.ragdealer.agent.goals.HandleChatTurn handleChatTurn) {
         this.chatStore = chatStore;
-        this.chatService = chatService;
+        this.handleChatTurn = handleChatTurn;
     }
 
     @PostMapping(value = "/chat")
@@ -32,11 +32,7 @@ public class ChatController {
                                              @CookieValue(value = "SESSION_ID", required = false) String sessionIdCookie) {
         boolean newSession = sessionIdCookie == null;
         String sessionId = newSession ? UUID.randomUUID().toString() : sessionIdCookie;
-        List<ChatMessage> history = chatStore.lastN(sessionId, 5);
-        String reply = chatService.generateReply(history, request.text()).block();
-        chatStore.append(sessionId, new ChatMessage("user", request.text(), Instant.now()));
-        chatStore.append(sessionId, new ChatMessage("assistant", reply, Instant.now()));
-        ChatResponse body = new ChatResponse(reply, chatStore.lastN(sessionId, 5));
+        ChatResponse body = handleChatTurn.execute(sessionId, request.text());
         ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
         if (newSession) {
             ResponseCookie cookie = ResponseCookie.from("SESSION_ID", sessionId).path("/").build();
