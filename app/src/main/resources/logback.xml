@@ -13,6 +13,8 @@
     <logger name="http-access-logger" level="INFO"/>
     <logger name="reactor.netty.http.server" level="DEBUG"/>
     <logger name="io.micronaut.http.server" level="DEBUG"/>
+    <!-- Agent and actions logging -->
+    <logger name="ru.kara4un.ragdealer.agent" level="DEBUG"/>
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
